@@ -10,11 +10,14 @@ import Link from "next/link"
 export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
+  const [worldId, setWorldId] = useState("")
 
   useEffect(() => {
     // Check if World ID is connected
     const connected = localStorage.getItem("worldid-connected") === "true"
+    const worldIdValue = localStorage.getItem("world-id") || ""
     setIsConnected(connected)
+    setWorldId(worldIdValue)
   }, [])
 
   return (
@@ -43,6 +46,17 @@ export default function HomePage() {
                 <Github className="w-4 h-4" />
                 <span>GitHub</span>
               </Link>
+              {isConnected && (
+                <div className="flex items-center space-x-3 bg-muted/50 rounded-lg px-4 py-2 border border-border">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">World ID</p>
+                    <p className="text-foreground text-sm font-mono">
+                      {worldId.slice(0, 12)}...{worldId.slice(-8)}
+                    </p>
+                  </div>
+                </div>
+              )}
               {isConnected ? (
                 <Link href="/dashboard">
                   <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
@@ -78,6 +92,15 @@ export default function HomePage() {
                   <Github className="w-4 h-4" />
                   <span>GitHub</span>
                 </Link>
+                {isConnected && (
+                  <div className="flex items-center space-x-2 bg-muted/50 rounded-lg px-3 py-2 border border-border">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-muted-foreground">World ID</p>
+                      <p className="text-foreground text-sm font-mono truncate">{worldId}</p>
+                    </div>
+                  </div>
+                )}
                 {isConnected ? (
                   <Link href="/dashboard">
                     <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
