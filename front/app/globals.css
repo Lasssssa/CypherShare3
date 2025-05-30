@@ -58,3 +58,61 @@
   }
 }
 
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Smooth transitions */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Glass effect utilities */
+.glass {
+  backdrop-filter: blur(16px);
+  background: hsl(var(--card) / 0.8);
+  border: 1px solid hsl(var(--border));
+}
+
+/* Animation for file upload */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.6);
+  }
+}
+
+.upload-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Web3 accent colors */
+.accent-purple {
+  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+}
+
+.accent-green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.accent-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
