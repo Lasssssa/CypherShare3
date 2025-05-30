@@ -1,0 +1,7 @@
+#-------- IDE and Editor Files --------#
+# JetBrains IDEs
+.idea/
+# Visual Studio Code
+.vscode/
+# Cursor
+.cursor/
