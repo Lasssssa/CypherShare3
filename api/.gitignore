@@ -6,3 +6,25 @@
 
 # local env files
 .env
+.env.local
+.env.*.local
+
+# Keep example file
+!.env.example
+
+# Hardhat files
+cache
+artifacts
+typechain
+typechain-types
+
+# Node
+node_modules
+package-lock.json
+
+# IDE
+.vscode
+.idea
+
+# Logs
+*.log
