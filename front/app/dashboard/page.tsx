@@ -32,6 +32,8 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useWallet } from "@/contexts/WalletContext"
+import { Header } from "@/components/shared/Header"
 
 interface SentFile {
   id: string
@@ -51,36 +53,37 @@ interface ReceivedFile {
   size: number
 }
 
+const isWorldApp = () => {
+  // Check for World App specific properties
+  return (
+    typeof window !== 'undefined' && 
+    (
+      // Check for World App user agent
+      /World App/i.test(navigator.userAgent) ||
+      // Check for World App specific objects
+      'ethereum' in window ||
+      // Check for World ID specific objects
+      'worldId' in window
+    )
+  )
+}
+
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB in bytes
+
 export default function DashboardPage() {
-  const [isConnected, setIsConnected] = useState(false)
-  const [worldId, setWorldId] = useState("")
-  const [walletAddress, setWalletAddress] = useState("")
+  const { isConnected, walletAddress, worldId, disconnect } = useWallet()
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [recipients, setRecipients] = useState<string[]>([])
   const [newRecipient, setNewRecipient] = useState("")
   const [isSending, setIsSending] = useState(false)
   const [sentFiles, setSentFiles] = useState<SentFile[]>([])
   const [receivedFiles, setReceivedFiles] = useState<ReceivedFile[]>([])
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("send")
   const [isDragging, setIsDragging] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
 
   useEffect(() => {
-    const connected = localStorage.getItem("worldid-connected") === "true"
-    const worldIdValue = localStorage.getItem("world-id") || ""
-    const address = localStorage.getItem("wallet-address") || ""
-
-    if (!connected) {
-      router.push("/connect")
-      return
-    }
-
-    setIsConnected(connected)
-    setWorldId(worldIdValue)
-    setWalletAddress(address)
-
     // Load mock data
     setSentFiles([
       {
@@ -114,11 +117,20 @@ export default function DashboardPage() {
         size: 0.8,
       },
     ])
-  }, [router])
+  }, [])
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          title: "File too large",
+          description: "Maximum file size is 100MB",
+          variant: "destructive",
+        })
+        event.target.value = '' // Reset the input
+        return
+      }
       setSelectedFile(file)
     }
   }
@@ -200,11 +212,24 @@ export default function DashboardPage() {
     })
   }
 
-  const disconnect = () => {
-    localStorage.removeItem("worldid-connected")
-    localStorage.removeItem("world-id")
-    localStorage.removeItem("wallet-address")
-    router.push("/")
+  const handleFileClick = () => {
+    // Create a file input element
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '*/*'
+    
+    // Add the change event listener
+    input.onchange = (e) => {
+      const target = e.target as HTMLInputElement
+      if (target.files?.[0]) {
+        handleFileSelect({ target } as React.ChangeEvent<HTMLInputElement>)
+      }
+    }
+
+    // Append to body, trigger click, and remove
+    document.body.appendChild(input)
+    input.click()
+    document.body.removeChild(input)
   }
 
   if (!isConnected) {
@@ -213,67 +238,8 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/80 backdrop-blur-md">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 accent-purple rounded-lg flex items-center justify-center">
-                <Shield className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-foreground">CypherShare</span>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
-              <div className="flex items-center space-x-3 bg-muted/50 rounded-lg px-4 py-2 border border-border">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <div>
-                  <p className="text-xs text-muted-foreground">World ID</p>
-                  <p className="text-foreground text-sm font-mono">
-                    {worldId.slice(0, 12)}...{worldId.slice(-8)}
-                  </p>
-                </div>
-              </div>
-              <Button
-                onClick={disconnect}
-                variant="outline"
-                className="text-red-400 border-red-400/30 hover:bg-red-400/10"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Disconnect
-              </Button>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button className="md:hidden text-foreground" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-
-          {/* Mobile Menu */}
-          {isMobileMenuOpen && (
-            <div className="md:hidden mt-4 pb-4 border-t border-border pt-4 space-y-3">
-              <div className="flex items-center space-x-2 bg-muted/50 rounded-lg px-3 py-2 border border-border">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs text-muted-foreground">World ID</p>
-                  <p className="text-foreground text-sm font-mono truncate">{worldId}</p>
-                </div>
-              </div>
-              <Button
-                onClick={disconnect}
-                variant="outline"
-                className="w-full text-red-400 border-red-400/30 hover:bg-red-400/10"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Disconnect
-              </Button>
-            </div>
-          )}
-        </div>
-      </header>
-
+      <Header />
+      
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -382,11 +348,7 @@ export default function DashboardPage() {
                   <div className="space-y-2">
                     <Label className="text-foreground">Select File</Label>
                     <div
-                      onDrop={handleDrop}
-                      onDragOver={handleDragOver}
-                      onDragEnter={handleDragEnter}
-                      onDragLeave={handleDragLeave}
-                      className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 cursor-pointer ${
+                      className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
                         isDragging
                           ? "border-violet-400 bg-violet-400/10"
                           : "border-border hover:border-primary/50 hover:bg-muted/50"
@@ -420,16 +382,16 @@ export default function DashboardPage() {
                             <Upload className="w-8 h-8 text-muted-foreground" />
                           </div>
                           <div>
-                            <p className="text-foreground text-lg">Drop your file here or click to browse</p>
-                            <p className="text-muted-foreground">Supports all file types • Max 100MB</p>
+                            <p className="text-foreground text-lg">Select a file to upload</p>
+                            <p className="text-muted-foreground">Maximum file size: 100MB</p>
                           </div>
-                          <input type="file" onChange={handleFileSelect} className="hidden" id="file-upload" />
-                          <label htmlFor="file-upload">
-                            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
-                              <Upload className="w-4 h-4 mr-2" />
-                              Choose File
-                            </Button>
-                          </label>
+                          <Button 
+                            onClick={handleFileClick}
+                            className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold px-6 py-2"
+                          >
+                            <Upload className="w-4 h-4 mr-2" />
+                            Choose File
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -777,8 +739,6 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
                     className="border-2 border-dashed border-border rounded-lg p-6 text-center"
                   >
                     {selectedFile ? (
@@ -802,12 +762,12 @@ export default function DashboardPage() {
                       <div className="space-y-3">
                         <Upload className="w-10 h-10 text-muted-foreground mx-auto" />
                         <p className="text-foreground">Tap to select file</p>
-                        <input type="file" onChange={handleFileSelect} className="hidden" id="mobile-file-upload" />
-                        <label htmlFor="mobile-file-upload">
-                          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
-                            Choose File
-                          </Button>
-                        </label>
+                        <Button 
+                          onClick={handleFileClick}
+                          className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
+                        >
+                          Choose File
+                        </Button>
                       </div>
                     )}
                   </div>

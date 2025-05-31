@@ -4,6 +4,7 @@ import {Inter} from "next/font/google"
 import "./globals.css"
 import {Toaster} from "@/components/ui/toaster"
 import {MiniKitProvider} from "@worldcoin/minikit-js/minikit-provider"
+import { WalletProvider } from "@/contexts/WalletContext"
 
 const inter = Inter({subsets: ["latin"]})
 
@@ -15,10 +16,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
     <MiniKitProvider>
-        <body className={inter.className}>
-          {children}
-          <Toaster/>
-        </body>
+        <WalletProvider>
+            <body className={inter.className}>
+              {children}
+              <Toaster/>
+            </body>
+        </WalletProvider>
     </MiniKitProvider>
     </html>
   )
