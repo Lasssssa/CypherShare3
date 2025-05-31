@@ -26,12 +26,13 @@ export default function SentFilesTab() {
     const fetchSentFiles = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get( `http://localhost:3001/files/get-my-uploaded-files?address=${address}`, {
+        const response = await axios.get( `https://a42c-195-113-187-130.ngrok-free.app/files/get-my-uploaded-files?address=${address}`, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
+            "ngrok-skip-browser-warning": "true",
+            "Content-Type": "application/json",
           },
-          withCredentials: true, // Include cookies for authentication
+          // withCredentials: true, // Include cookies for authentication
         });
 
         const data = response.data;

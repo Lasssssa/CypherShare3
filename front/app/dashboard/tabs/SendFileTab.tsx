@@ -39,6 +39,8 @@ export default function SendFileTab() {
     recipients: string[];
   } | null>(null);
 
+  const [hash, setHash] = useState<string | null>(null);
+
   const { uploadState, uploadToLighthouse, resetUpload } = useLighthouseUpload();
   const { toast } = useToast();
 
@@ -105,15 +107,21 @@ export default function SendFileTab() {
         tags: ["sent", "dashboard"],
       });
 
-      const response = await axios.post("http://localhost:3001/files/upload-file", {
+      const response = await axios.post("https://a42c-195-113-187-130.ngrok-free.app/files/upload-file", {
         cid: uploadResult.cid,
         name: encryptedFileData.originalName,
         size: encryptedFileData.originalSize,
         cryptedKeys: [aes],
         recipients: recipients,
       }, {
-        withCredentials: true,
+      headers: {
+          "ngrok-skip-browser-warning": "true",
+          "Content-Type": "application/json",
+      },
+        // withCredentials: true,
       });
+
+      setHash(response.data.transactionHash);
 
       // Afficher les informations de succès
       setUploadSuccess({
@@ -152,6 +160,7 @@ export default function SendFileTab() {
     <main>
       {uploadSuccess ? (
         <UploadSuccessInfo
+          transactionHash={hash}
           uploadResult={uploadSuccess.uploadResult}
           encryptedFileData={uploadSuccess.encryptedFileData}
           recipients={uploadSuccess.recipients}

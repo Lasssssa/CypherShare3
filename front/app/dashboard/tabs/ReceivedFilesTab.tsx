@@ -78,17 +78,19 @@ export default function ReceivedFilesTab() {
     const fetchSentFiles = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get( `http://localhost:3001/files/get-my-shared-files?address=${address}`, {
+        const response = await axios.get( `https://a42c-195-113-187-130.ngrok-free.app/files/get-my-shared-files?address=${address}`, {
           method: 'GET',
           headers: {
+            'ngrok-skip-browser-warning': 'true',
             'Content-Type': 'application/json',
           },
-          withCredentials: true, // Include cookies for authentication
+          // withCredentials: true, // Include cookies for authentication
         });
 
         const data = response.data;
         setReceivedFiles(data.files);
       } catch (err) {
+        console.log(err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setIsLoading(false);

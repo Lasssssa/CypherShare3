@@ -19,16 +19,19 @@ import { useToast } from "@/hooks/use-toast";
 import { EncryptedFileData } from "@/lib/encryption";
 import { LighthouseUploadResult } from "@/lib/lighthouse";
 import { FileEncryption } from "@/lib/encryption";
+import Link from "next/link";
 
 interface UploadSuccessInfoProps {
   uploadResult: LighthouseUploadResult;
   encryptedFileData: EncryptedFileData;
   recipients: string[];
   onClose: () => void;
+  transactionHash: string|null;
 }
 
 export function UploadSuccessInfo({
   uploadResult,
+  transactionHash,
   encryptedFileData,
   recipients,
   onClose,
@@ -57,51 +60,6 @@ export function UploadSuccessInfo({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* TODO : DELETE */}
-        {/* <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-4 border-2 border-blue-400">
-          <div className="text-center mb-3">
-            <h3 className="text-lg font-bold">
-              🔑 DECRYPTION INFO - COPY THESE!
-            </h3>
-            <p className="text-sm opacity-90">Tap to copy each value</p>
-          </div>
-
-          <div className="space-y-3">
-            <div
-              className="bg-white/20 rounded-lg p-3 cursor-pointer hover:bg-white/30 transition-colors"
-              onClick={() => copyToClipboard(uploadResult.cid, "CID")}
-            >
-              <div className="text-xs font-medium opacity-90 mb-1">
-                FILECOIN CID:
-              </div>
-              <div className="font-mono text-sm break-all">
-                {uploadResult.cid}
-              </div>
-            </div>
-
-            <div
-              className="bg-white/20 rounded-lg p-3 cursor-pointer hover:bg-white/30 transition-colors"
-              onClick={() =>
-                copyToClipboard(
-                  FileEncryption.keyToHex(encryptedFileData.key),
-                  "AES Key"
-                )
-              }
-            >
-              <div className="text-xs font-medium opacity-90 mb-1">
-                AES KEY (256-bit):
-              </div>
-              <div className="font-mono text-sm break-all">
-                {FileEncryption.keyToHex(encryptedFileData.key)}
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center mt-3 text-xs opacity-90">
-            ⚠️ Save these 2 values - they're needed for decryption!
-          </div>
-        </div> */}
-
         {/* Informations du fichier */}
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-start space-x-4">
@@ -112,6 +70,9 @@ export function UploadSuccessInfo({
               <h3 className="font-semibold text-green-800 mb-2">
                 {encryptedFileData.originalName}
               </h3>
+              <Link  href={`https://eth-sepolia.blockscout.com/tx/${transactionHash}`} target="_blank" className="text-sm text-blue-600 hover:underline mb-2 flex items-center space-x-1">
+                View on Blockscout
+              </Link>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div className="flex items-center space-x-2">
                   <FileText className="w-4 h-4 text-green-600" />
