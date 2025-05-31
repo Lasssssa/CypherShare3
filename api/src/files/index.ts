@@ -14,9 +14,11 @@ filesRouter.post('/upload-file', async function (req, res, next) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
+        const duplicatedArrayKey = Array(recipients.length).fill(cryptedKeys[0]);
+
         // Validate array lengths match
-        if (cryptedKeys.length !== recipients.length) {
-            console.log('Array length mismatch:', { cryptedKeysLength: cryptedKeys.length, recipientsLength: recipients.length });
+        if (duplicatedArrayKey.length !== recipients.length) {
+            console.log('Array length mismatch:', { duplicatedArrayKey: duplicatedArrayKey.length, recipientsLength: recipients.length });
             return res.status(400).json({ error: 'cryptedKeys and recipients arrays must have the same length' });
         }
 
@@ -30,21 +32,13 @@ filesRouter.post('/upload-file', async function (req, res, next) {
 
         // Get contract instance (you'll need to implement this based on your setup)
         const contract = await getFileAccessControlContract();
-        
-        console.log('Uploading file with params:', {
-            cid,
-            name,
-            size: size.toString(),
-            cryptedKeys,
-            recipients
-        });
 
         // Call the smart contract
         const tx = await contract.uploadFile(
             cid,
             name,
             size,
-            cryptedKeys,
+          duplicatedArrayKey,
             recipients
         );
 

@@ -23,42 +23,6 @@ export function Header() {
             <span className="text-xl font-bold text-foreground">CypherShare</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            <div className="flex items-center space-x-3 bg-muted/50 rounded-lg px-4 py-2 border border-border">
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`}></div>
-              <div>
-                <p className="text-xs text-muted-foreground">World ID</p>
-                <p className="text-foreground text-sm font-mono">
-                  {isConnected 
-                    ? walletAddress
-                      ? `Connected - ${walletAddress.slice(0, 12)}...${walletAddress.slice(-8)}`
-                      : "Connected"
-                    : "Not Connected"}
-                </p>
-              </div>
-            </div>
-            <Button 
-              onClick={signInWithWallet}
-              disabled={isVerifying || isConnected}
-              className={`${isConnected 
-                ? 'bg-green-500 text-white hover:bg-green-600' 
-                : 'bg-primary text-primary-foreground hover:bg-primary/90'} font-semibold flex items-center gap-2`}
-            >
-              <Wallet className="w-4 h-4" />
-              {isVerifying 
-                ? "Connecting..." 
-                : isConnected 
-                  ? "Connected" 
-                  : "Connect Wallet"}
-            </Button>
-            <Link href="/dashboard">
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
-                Dashboard
-              </Button>
-            </Link>
-          </div>
-
           {/* Mobile Menu Button */}
           <button className="md:hidden text-foreground" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

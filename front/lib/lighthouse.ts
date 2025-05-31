@@ -230,26 +230,10 @@ export class LighthouseService {
           uploadResult.cid
         );
 
-        if (verification.accessible) {
-          console.log(
-            `✅ Upload Lighthouse réussi! CID vérifié: ${uploadResult.cid}`
-          );
-          console.log(`🌐 Accessible via: ${verification.gateway}`);
-          console.log(`📏 Taille vérifiée: ${verification.size} bytes`);
-        } else {
-          console.warn(
-            `⚠️ Upload réussi mais CID pas encore accessible: ${uploadResult.cid}`
-          );
-          console.warn(
-            "💡 Le fichier peut prendre quelques minutes à être propagé sur IPFS"
-          );
-        }
       } catch (realUploadError) {
-        console.warn("❌ Échec upload Lighthouse réel:", realUploadError);
 
         // En cas d'échec, utiliser le mock seulement en développement
         if (this.isDevelopmentMode()) {
-          console.log("🔄 Fallback vers upload simulé...");
           onProgress?.({
             progress: 60,
             stage: "uploading",
@@ -273,7 +257,6 @@ export class LighthouseService {
 
       return uploadResult;
     } catch (error) {
-      console.error("Erreur lors de l'upload Lighthouse:", error);
       throw new Error(
         `Échec de l'upload: ${
           error instanceof Error ? error.message : "Erreur inconnue"
@@ -296,12 +279,8 @@ export class LighthouseService {
     error?: string;
   }> {
     try {
-      console.log("🧪 Test d'upload Lighthouse avec vérification...");
-
       const result = await this.uploadEncryptedFile(testData, fileName);
 
-      // Attendre 5 secondes pour la propagation
-      console.log("⏳ Attente 5 secondes pour la propagation IPFS...");
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
       const verification = await this.verifyCIDAccessibility(result.cid);

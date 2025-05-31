@@ -49,27 +49,6 @@ export class FileEncryption {
       // 2. Générer un IV aléatoire
       const iv = this.generateIV();
 
-      // 3. Debug détaillé des clés générées
-      const keyHex = this.keyToHex(key);
-      const ivHex = this.keyToHex(iv);
-
-      console.log("🔐 INFORMATIONS DE CHIFFREMENT:");
-      console.log("📄 Fichier:", file.name);
-      console.log("🔑 Clé AES (bytes):", key.length, "bytes");
-      console.log("🔑 Clé AES (bits):", key.length * 8, "bits");
-      console.log("🔑 Clé AES (hex):", keyHex);
-      console.log("🔑 Clé AES hex longueur:", keyHex.length, "caractères");
-      console.log("🎲 IV (bytes):", iv.length, "bytes");
-      console.log("🎲 IV (bits):", iv.length * 8, "bits");
-      console.log("🎲 IV (hex):", ivHex);
-      console.log("🎲 IV hex longueur:", ivHex.length, "caractères");
-      console.log(
-        "📦 NOUVEAU: IV stocké au début du fichier chiffré (12 premiers bytes)"
-      );
-      console.log(
-        "⚠️  SAUVEGARDEZ SEULEMENT LA CLÉ AES - l'IV sera extrait automatiquement !"
-      );
-
       // 4. Convertir le fichier en ArrayBuffer
       const fileBuffer = await this.fileToArrayBuffer(file);
 
@@ -102,10 +81,6 @@ export class FileEncryption {
       // Copier les données chiffrées après l'IV
       finalView.set(new Uint8Array(encryptedData), iv.length);
 
-      console.log(
-        `📦 Fichier final: ${finalData.byteLength} bytes (${iv.length} IV + ${encryptedData.byteLength} chiffré)`
-      );
-
       return {
         encryptedFile: finalData,
         key,
@@ -113,7 +88,6 @@ export class FileEncryption {
         originalSize: file.size,
       };
     } catch (error) {
-      console.error("Erreur lors du chiffrement:", error);
       throw new Error("Échec du chiffrement du fichier");
     }
   }
@@ -131,11 +105,6 @@ export class FileEncryption {
 
       // 2. Extraire les données chiffrées (après les 12 premiers bytes)
       const encryptedData = encryptedDataWithIV.slice(12);
-
-      console.log("🔓 DÉCHIFFREMENT:");
-      console.log("📦 Taille totale:", encryptedDataWithIV.byteLength, "bytes");
-      console.log("🎲 IV extrait:", this.keyToHex(iv), `(${iv.length} bytes)`);
-      console.log("🔒 Données chiffrées:", encryptedData.byteLength, "bytes");
 
       // 3. Importer la clé pour l'API Web Crypto
       const cryptoKey = await crypto.subtle.importKey(
@@ -156,11 +125,6 @@ export class FileEncryption {
         encryptedData
       );
 
-      console.log(
-        "✅ Déchiffrement réussi:",
-        decryptedFile.byteLength,
-        "bytes"
-      );
       return decryptedFile;
     } catch (error) {
       console.error("Erreur lors du déchiffrement:", error);
@@ -199,23 +163,8 @@ export class FileEncryption {
 
       return decryptedFile;
     } catch (error) {
-      console.error("Erreur lors du déchiffrement:", error);
       throw new Error("Échec du déchiffrement du fichier");
     }
-  }
-
-  /**
-   * Extrait l'IV d'un fichier chiffré (12 premiers bytes)
-   */
-  static extractIV(encryptedFileWithIV: ArrayBuffer): Uint8Array {
-    return new Uint8Array(encryptedFileWithIV.slice(0, 12));
-  }
-
-  /**
-   * Extrait les données chiffrées (sans l'IV)
-   */
-  static extractEncryptedData(encryptedFileWithIV: ArrayBuffer): ArrayBuffer {
-    return encryptedFileWithIV.slice(12);
   }
 
   /**
@@ -261,9 +210,6 @@ export class FileEncryption {
       bytes[i / 2] = parseInt(cleanHex.substring(i, i + 2), 16);
     }
 
-    console.log(
-      `🔑 Conversion hex vers clé AES: ${keyLengthBits} bits (${bytes.length} bytes)`
-    );
     return bytes;
   }
 
@@ -301,7 +247,6 @@ export class FileEncryption {
       bytes[i / 2] = parseInt(cleanHex.substring(i, i + 2), 16);
     }
 
-    console.log(`🎲 Conversion hex vers IV: 96 bits (${bytes.length} bytes)`);
     return bytes;
   }
 

@@ -1,19 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Shield, Zap, Menu, X, Globe, Wallet } from "lucide-react";
+import { FileText, Shield, Zap, Globe } from "lucide-react";
 import Link from "next/link";
-import { MiniKit } from "@worldcoin/minikit-js";
-import { useWallet } from "@/contexts/WalletContext";
 import { Header } from "@/components/shared/Header";
 
 export default function HomePage() {
-  const { isConnected, walletAddress, isVerifying, signInWithWallet } =
-    useWallet();
-
   return (
     <div className="min-h-screen bg-background">
       <Header />

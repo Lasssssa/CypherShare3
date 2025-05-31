@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import {json, urlencoded} from "body-parser";
 import {NextFunction, Request, Response} from "express";
 
-const allowedOrigins = process.env.NODE_ENV === ['http://localhost:3000', 'http://localhost:3001'];
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001', " https://aa17-195-113-187-136.ngrok-free.app"];
 
 export const createServer = (): Express => {
   const app = express();
