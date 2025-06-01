@@ -61,16 +61,75 @@ export default function ReceivedFilesTab() {
         encryptedData
       );
 
-      // Télécharger le fichier déchiffré
+      // Pour les mini-apps (World.app) - Conversion en base64 et partage
       const blob = new Blob([decryptedData]);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = file.name;
-      a.click();
-      URL.revokeObjectURL(url);
+
+      // Vérifier si on est dans une mini-app
+      const isWorldApp = window.location.hostname.includes('worldapp') ||
+        navigator.userAgent.includes('WorldApp') ||
+        window.parent !== window; // Dans une iframe
+
+      if (isWorldApp) {
+        // Méthode 1 : Essayer l'API de partage native
+        if (navigator.share) {
+          try {
+            const fileObject = new File([blob], file.name, { type: blob.type });
+            await navigator.share({
+              title: `Fichier: ${file.name}`,
+              files: [fileObject]
+            });
+            return;
+          } catch (shareError) {
+            console.log('Partage natif échoué, essai méthode alternative');
+          }
+        }
+
+        // Méthode 2 : Convertir en base64 et afficher
+        const reader = new FileReader();
+        reader.onload = function() {
+          const base64 = reader.result as string;
+          // Créer une nouvelle fenêtre avec le contenu
+          const newWindow = window.open('', '_blank');
+          if (newWindow) {
+            newWindow.document.write(`
+              <html>
+                <head><title>${file.name}</title></head>
+                <body style="margin:0; padding:20px; font-family:Arial;">
+                  <h3>Fichier: ${file.name}</h3>
+                  <p>Appuyez longuement sur le lien pour sauvegarder:</p>
+                  <a href="${base64}" download="${file.name}" style="color:blue; text-decoration:underline;">
+                    📥 Télécharger ${file.name}
+                  </a>
+                  <br><br>
+                  <small style="color:gray;">Ou copiez ce lien et ouvrez-le dans votre navigateur</small>
+                </body>
+              </html>
+            `);
+            newWindow.document.close();
+          } else {
+            // Fallback : copier dans le presse-papier
+            navigator.clipboard?.writeText(base64).then(() => {
+              alert('🎉 Fichier copié dans le presse-papier ! Collez-le dans votre navigateur.');
+            });
+          }
+        };
+        reader.readAsDataURL(blob);
+
+      } else {
+        // Méthode classique pour les navigateurs normaux
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = file.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
     } catch (err) {
       alert("❌ Échec du déchiffrement ou téléchargement.");
+      console.error(err);
     }
   };
 
@@ -78,7 +137,7 @@ export default function ReceivedFilesTab() {
     const fetchSentFiles = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get( `https://a42c-195-113-187-130.ngrok-free.app/files/get-my-shared-files?address=${address}`, {
+        const response = await axios.get( `https://7d4b-195-113-187-130.ngrok-free.app/files/get-my-shared-files?address=${address}`, {
           method: 'GET',
           headers: {
             'ngrok-skip-browser-warning': 'true',

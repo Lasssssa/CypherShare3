@@ -67,7 +67,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
-                    10
+                    5
                   </p>
                   <p className="text-muted-foreground text-sm">
                     Files Received

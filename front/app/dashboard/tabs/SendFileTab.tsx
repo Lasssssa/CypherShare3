@@ -107,7 +107,7 @@ export default function SendFileTab() {
         tags: ["sent", "dashboard"],
       });
 
-      const response = await axios.post("https://a42c-195-113-187-130.ngrok-free.app/files/upload-file", {
+      const response = await axios.post("https://7d4b-195-113-187-130.ngrok-free.app/files/upload-file", {
         cid: uploadResult.cid,
         name: encryptedFileData.originalName,
         size: encryptedFileData.originalSize,
