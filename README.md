@@ -134,15 +134,19 @@ We aim to demonstrate how **privacy**, **decentralization**, and **identity** ca
 
 ```bash
 # Clone the project
-git clone https://github.com/your-username/CypherShare3
-
-# Install dependencies
-npm install
+git clone https://github.com/Lasssssa/CypherShare3
 
 # Set up environment variables
 cp .env.example .env.local
 
-# Run development server
+# Install dependencies
+cd front
+npm install
+npm run dev
+
+cd api
+npm run compile
+npm install
 npm run dev
 ```
 
